@@ -94,7 +94,10 @@ M.start = function(callback)
     })
   end
 
-  local ok, obj = pcall(vim.system, { state.settings.server.binary, settings }, {
+  local ok, obj = pcall(vim.system, { state.settings.server.binary }, {
+    -- Pass the settings through the environment rather than as an argument, because
+    -- arguments (including the auth token) are visible to every user on the machine.
+    env = { GITLAB_NVIM_SERVER_SETTINGS = settings },
     -- The `stdin` param opens a pipe on the server's stdin that nvim holds open but
     -- never writes to. The server exits when it sees EOF on the pipe, which is how it
     -- notices that nvim is gone in the cases the VimLeavePre autocmd cannot cover:
