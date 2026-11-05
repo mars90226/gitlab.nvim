@@ -92,10 +92,7 @@ M.pluralize = function(num, word)
 end
 
 ---Provide a human readable time since a given ISO date string.
----TODO: Verify that time zone is handled correctly by this function. Current date is
----calculated as Coordinated Universal Time, but the reference `date_string` seems to be
----taken at face value. This should handle date_string formats like
----"2026-06-23T15:31:08.521+02:00", and "2026-05-24T14:50:46.096Z"
+---Handles date_string formats like "2026-06-23T15:31:08.521+02:00", and "2026-05-24T14:50:46.096Z".
 ---@param date_string string The ISO time stamp to compare with the current time
 ---@param current_date_table? osdate Only used in tests. Table with YYYY, MM, DD, HH, MM, SS, weekday (Sunday is 1), day of the year, and boolean daylight saving flag
 ---@return string
@@ -103,6 +100,12 @@ M.time_since = function(date_string, current_date_table)
   local dt = current_date_table or os.date("!*t")
   local year, month, day, hour, min, sec = date_string:match("(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)")
   local date = os.time({ year = year, month = month, day = day, hour = hour, min = min, sec = sec })
+
+  -- The current date is in UTC, so convert a date_string with a time zone offset to UTC as well
+  local sign, offset_hours, offset_minutes = date_string:match("([%+%-])(%d%d):?(%d%d)$")
+  if sign ~= nil then
+    date = date - M.offset_to_seconds(sign .. offset_hours .. offset_minutes)
+  end
 
   local current_date = os.time({
     year = dt.year,

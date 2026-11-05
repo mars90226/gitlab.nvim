@@ -58,6 +58,27 @@ describe("utils/init.lua", function()
       local want = "5 days ago"
       assert.are.same(want, got)
     end)
+
+    it("Converts a positive time zone offset to UTC", function()
+      local stamp = "2023-11-20T03:52:36.946+08:00"
+      local got = u.time_since(stamp, current_date)
+      local want = "2 hours ago"
+      assert.are.same(want, got)
+    end)
+
+    it("Converts a negative time zone offset to UTC", function()
+      local stamp = "2023-11-19T14:52:36.946-05:00"
+      local got = u.time_since(stamp, current_date)
+      local want = "2 hours ago"
+      assert.are.same(want, got)
+    end)
+
+    it("Converts a time zone offset without milliseconds to UTC", function()
+      local stamp = "2023-11-16T03:52:36+08:00"
+      local got = u.time_since(stamp, current_date)
+      local want = "4 days ago"
+      assert.are.same(want, got)
+    end)
   end)
 
   describe("contains", function()
