@@ -49,6 +49,26 @@ describe("actions/discussions buffers", function()
     assert.is_false(vim.api.nvim_buf_is_valid(unlinked), ("unlinked buffer %d was not deleted"):format(unlinked))
   end)
 
+  it("Rebuilds the notes tree after the linked buffer is wiped", function()
+    vim.cmd("tabnew")
+    discussions.open()
+    local linked, unlinked = discussions.linked_bufnr, discussions.unlinked_bufnr
+    assert_buffers_created(linked, unlinked)
+    local previous_tree = discussions.unlinked_discussion_tree
+
+    vim.api.nvim_set_current_win(discussions.split.winid)
+    discussions.switch_view_type("notes")
+    vim.api.nvim_buf_delete(linked, { force = true })
+    assert.is_nil(discussions.linked_bufnr)
+
+    discussions.rebuild_unlinked_discussion_tree()
+
+    assert.are_not.equal(previous_tree, discussions.unlinked_discussion_tree)
+    assert.is_false(vim.bo[unlinked].modifiable)
+    assert.is_true(vim.bo[unlinked].readonly)
+    discussions.close()
+  end)
+
   it("Leaves no buffer behind over an open/close cycle", function()
     vim.cmd("tabnew")
     discussions.open()
