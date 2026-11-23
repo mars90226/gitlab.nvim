@@ -23,12 +23,11 @@ end
 
 ---Switch the options that control if buffers can be modified.
 ---@param bool boolean The value to set
----@param ... integer List of buffer numbers
+---@param ... integer? List of buffer numbers
 M.switch_can_edit_bufs = function(bool, ...)
-  local bufnrs = { ... }
-  ---@param v integer
-  for _, v in ipairs(bufnrs) do
-    u.switch_can_edit_buf(v, bool)
+  -- Either discussion buffer may have been wiped independently.
+  for _, bufnr in pairs({ ... }) do
+    u.switch_can_edit_buf(bufnr, bool)
   end
 end
 
